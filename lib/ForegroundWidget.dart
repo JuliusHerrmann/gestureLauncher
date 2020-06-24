@@ -27,10 +27,11 @@ class _ForegroundWidgetState extends State<ForegroundWidget>{
 
 	@override
 	Widget build(BuildContext context) {
-		return Container(
-				padding: EdgeInsets.fromLTRB(30, 20, 30, 0),
-				child: gridViewContainer(widget.installedApps, widget.selectedApps)
-		);
+	return Container(
+				height: MediaQuery.of(context).size.height * 7/8,
+							padding: EdgeInsets.fromLTRB(30, 20, 30, 0),
+							child: gridViewContainer(widget.installedApps, widget.selectedApps)
+			);
 	}
 
 
@@ -38,6 +39,7 @@ class _ForegroundWidgetState extends State<ForegroundWidget>{
 		return GridView.count(
 				crossAxisCount: 4,
 				mainAxisSpacing: 40,
+				shrinkWrap: true,
 				physics: BouncingScrollPhysics(),
 				children: List.generate(
 						installedApps != null ? installedApps.length : 0,

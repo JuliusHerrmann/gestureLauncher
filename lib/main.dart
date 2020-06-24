@@ -35,41 +35,53 @@ class _MyAppState extends State<MyApp> {
 	@override
 	Widget build(BuildContext context) {
 		return new MaterialApp(
-		home: Scaffold(
+				home: Scaffold(
 						body:	WillPopScope(
-						onWillPop: () => Future(() => false),
-						child: SwipeDetector(
-									child: Stack(
-											children: <Widget>[
-												GestureDetector(
-													child: WallpaperContainer(wallpaper: wallpaper),
-													onLongPress: (){setState(() {
+								onWillPop: () => Future(() => false),
+								child: SwipeDetector(
+										child: Stack(
+												children: <Widget>[
+													GestureDetector(
+															child: WallpaperContainer(wallpaper: wallpaper),
+															onLongPress: (){setState(() {
 																showGrid = !showGrid;
 															});}
-												),
-												Visibility(
-														visible: showGrid,
-														child: ForegroundWidget(installedApps: installedApps, selectedApps: selectedApps),
-														),
-												Column(
+													),
+													Visibility(
+															visible: showGrid,
+															child: Column(
+																	children: [
+																		ForegroundWidget(installedApps: installedApps, selectedApps: selectedApps),
+																		Center(
+																				child:
+																				Row(
+																						mainAxisAlignment: MainAxisAlignment.center,
+																						children: [
+																							RaisedButton(
+																									child: Text("reset apps"),
+																									onPressed: (){
+																										setState(() {
+																											storage.writeApps(new List(16));
+																											selectedApps = new List(16);
+																										});},
+																							),
+																							RaisedButton(
+																									child: Text("show Grid"),
+																									onPressed: (){
+																										setState(() {
+																											showGrid = !showGrid;
+																											//save data to disk
+																											storage.writeApps(selectedApps);
+																										});},
+																							),
+																						],
+																				),
+																				),
+																				],
+																				)
+																				),
+																		Column(
 														children: [
-															RaisedButton(
-																	child: Text("show Grid"),
-																	onPressed: (){
-																	setState(() {
-																		showGrid = !showGrid;
-																		//save data to disk
-																		storage.writeApps(selectedApps);
-																	});},
-																	),
-															RaisedButton(
-																	child: Text("reset apps"),
-																	onPressed: (){
-																	setState(() {
-																		storage.writeApps(new List(16));
-																		selectedApps = new List(16);
-																	});},
-														),
 														],
 													),
 											],
