@@ -27,18 +27,20 @@ class _ForegroundWidgetState extends State<ForegroundWidget>{
 
 	@override
 	Widget build(BuildContext context) {
-	return Container(
-				height: MediaQuery.of(context).size.height * 7/8,
-							padding: EdgeInsets.fromLTRB(30, 20, 30, 0),
-							child: gridViewContainer(widget.installedApps, widget.selectedApps)
-			);
+		return Expanded(
+				child: Container(
+						padding: EdgeInsets.fromLTRB(30, 20, 30, 0),
+						child: gridViewContainer(widget.installedApps, widget.selectedApps)
+				)
+		);
 	}
 
 
 	gridViewContainer(installedApps, selectedApps) {
 		return GridView.count(
 				crossAxisCount: 4,
-				mainAxisSpacing: 40,
+				mainAxisSpacing: 10,
+				crossAxisSpacing: 5,
 				shrinkWrap: true,
 				physics: BouncingScrollPhysics(),
 				children: List.generate(
@@ -72,27 +74,52 @@ class _GridEntryState extends State<GridEntry>{
 
 	@override
 	Widget build(BuildContext context) {
-		return Container(
-				child: GestureDetector(
+		return InkResponse(
+				child: Container(
+						padding: EdgeInsets.fromLTRB(5, 8, 5, 0),
+						decoration: BoxDecoration(
+								shape: BoxShape.rectangle,
+								borderRadius: BorderRadius.circular(10.0),
+								color: Colors.blue,
+						),
 						child: Column(
 								children: [
 									iconContainer(widget.index),
-									widget.selectedApps.indexOf(widget.installedApps[widget.index]["package"]) != -1  ? Text(widget.selectedApps.indexOf(widget.installedApps[widget.index]["package"]).toString()) : Text("NotSelected"),
+									Expanded(
+											child: widget.selectedApps.indexOf(widget.installedApps[widget.index]["package"]) != -1  
+											? Text(widget.selectedApps.indexOf(widget.installedApps[widget.index]["package"]).toString(),
+													maxLines: 1,
+													overflow: TextOverflow.ellipsis,
+											)
+											: Text("NotSelected",
+													maxLines: 1,
+													overflow: TextOverflow.ellipsis,
+											),
+									),
 								],
 						),
-
+						),
 						onTap: () {
-							_asyncInputDialog(context).then((input) => act(input));
-						}
-				),
-		);
+							_asyncInputDialog(context).then((input) => act(input, widget.index));
+						},
+					);
 	}
 
-	void act(input){
-		print("yay");
+	void act(input, index){
 		setState(() {
-				  widget.selectedApps[input] = widget.installedApps[widget.index]["package"];
-				});
+			if(input == -2){
+				print(index.toString());
+				print("ay");
+				widget.selectedApps[widget.selectedApps.indexOf(widget.installedApps[index]["package"])] = "";
+			}else if (input > -1 && input < 16){
+				//delete old entry first
+
+				if(widget.selectedApps.indexOf(widget.installedApps[widget.index]["package"]) != -1){
+					widget.selectedApps [widget.selectedApps.indexOf(widget.installedApps[widget.index]["package"])] = "";
+				}
+				widget.selectedApps[input] = widget.installedApps[index]["package"];
+			}
+		});
 	}
 
 	iconContainer(index) {
@@ -113,35 +140,49 @@ class _GridEntryState extends State<GridEntry>{
 	Future<int> _asyncInputDialog(BuildContext context) async {
 		int input = 0;
 		return showDialog<int>(
-			context: context,
-			barrierDismissible: false, // dialog is dismissible with a tap on the barrier
-			builder: (BuildContext context) {
-				return AlertDialog(
-					title: Text('Enter a number'),
-					content: new Row(
-						children: <Widget>[
-							new Expanded(
-									child: new TextField(
-								autofocus: true,
-								decoration: new InputDecoration(
-										labelText: 'Number', hintText: '0 to 15'),
-								keyboardType: TextInputType.number,
-								onChanged: (value) {
-									input = int.parse(value);
-								},
-							))
-						],
-					),
-					actions: <Widget>[
-						FlatButton(
-							child: Text('Ok'),
-							onPressed: () {
-								Navigator.of(context).pop(input);
-							},
-						),
-					],
+				context: context,
+				barrierDismissible: false, // dialog is dismissible with a tap on the barrier
+				builder: (BuildContext context) {
+					return AlertDialog(
+							title: Text('Enter a number'),
+							content: new Row(
+									children: <Widget>[
+										new Expanded(
+												child: new TextField(
+														autofocus: true,
+														decoration: new InputDecoration(
+																labelText: 'Number', hintText: '0 to 15'),
+														keyboardType: TextInputType.number,
+														onChanged: (value) {
+															input = int.parse(value);
+														},
+												))
+									],
+							),
+							actions: <Widget>[
+								FlatButton(
+										child: Text('Ok'),
+										onPressed: () {
+											Navigator.of(context).pop(input);
+										},
+								),
+								FlatButton(
+										child: Text('cancel'),
+										onPressed: () {
+											Navigator.of(context).pop(-1);
+										},
+								),
+								widget.selectedApps.indexOf(widget.installedApps[widget.index]["package"]) != -1
+										?FlatButton(
+												child: Text('unset'),
+												onPressed: () {
+													Navigator.of(context).pop(-2);
+												},
+										)
+										: Container(),
+										],
+										);
+				},
 				);
-			},
-		);
 	}
 }
