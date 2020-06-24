@@ -28,6 +28,7 @@ dependencies:
   permission_handler: ^5.0.1
   swipedetector: ^1.2.0
   fluttertoast: ^4.0.0
+  shared_preferences: ^0.5.7+3
 
 
 
